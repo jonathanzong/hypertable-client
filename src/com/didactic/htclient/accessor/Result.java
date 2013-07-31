@@ -6,29 +6,69 @@ import java.util.List;
 
 import org.hypertable.thriftgen.Cell;
 
+/**
+ * Class representing a single row result
+ * returned by a Hypertable scan.
+ *
+ */
 public class Result {
 
 	private String rowkey;
 	private List<Cell> cells;
 
+	/**
+	 * Construct a scan result object
+	 * 
+	 * @param rowkey
+	 * @param cells
+	 */
 	public Result(String rowkey, List<Cell> cells){
 		this.rowkey = rowkey;
 		this.cells = cells;
 	}
 
+	/**
+	 * Get the rowkey associated with the result
+	 * 
+	 * @return
+	 */
 	public String getRowkey(){
 		return this.rowkey;
 	}
 
+	/**
+	 * Check if the Result object contains
+	 * a value for the specified column
+	 * 
+	 * @param cfam
+	 * @param cqual
+	 * @return
+	 */
 	public boolean containsColumn(String cfam, String cqual){
 		return getValue(cfam, cqual) != null;
 	}
 	
+	/**
+	 * Returns the most recent value for the specified column
+	 * or null if it is not found.
+	 * 
+	 * @param cfam
+	 * @param cqual
+	 * @return
+	 */
 	public String getValue(String cfam, String cqual){
 		Cell c = getCell(cfam, cqual);
 		return c == null ? null : new String(c.getValue());
 	}
 	
+	/**
+	 * Returns all revisions of a value for the specified column
+	 * or null if it is not found.
+	 * 
+	 * @param cfam
+	 * @param cqual
+	 * @return
+	 */
 	public List<String> getValueRevisions(String cfam, String cqual){
 		List<Cell> cs = getCellRevisions(cfam, cqual);
 		if(cs == null) return null;
@@ -38,11 +78,27 @@ public class Result {
 		return list;
 	}
 	
+	/**
+	 * Returns the most recent timestamp for the
+	 * specified column, or null if it is not found
+	 * 
+	 * @param cfam
+	 * @param cqual
+	 * @return
+	 */
 	public Long getTimestamp(String cfam, String cqual){
 		Cell c = getCell(cfam, cqual);
 		return c == null ? null : c.getKey().getTimestamp();
 	}
 	
+	/**
+	 * Returns timestamps for all revisions of the specified
+	 * column, or null if it is not found.
+	 *  
+	 * @param cfam
+	 * @param cqual
+	 * @return
+	 */
 	public List<Long> getTimestampRevisions(String cfam, String cqual){
 		List<Cell> cs = getCellRevisions(cfam, cqual);
 		if(cs == null) return null;
@@ -52,6 +108,15 @@ public class Result {
 		return list;
 	}
 
+	/**
+	 * Performs a binary search to find the most recent
+	 * cell for a specified column. Returns null if it is
+	 * not found.
+	 * 
+	 * @param cfam
+	 * @param cqual
+	 * @return
+	 */
 	private Cell getCell(String cfam, String cqual){
 		int lo = 0;
 		int hi = cells.size() - 1;
@@ -78,6 +143,14 @@ public class Result {
 		return null;
 	}
 
+	/**
+	 * Performs a binary search to return all revisions
+	 * of a specified column, or null if it is not found.
+	 * 
+	 * @param cfam
+	 * @param cqual
+	 * @return
+	 */
 	private List<Cell> getCellRevisions(String cfam, String cqual){
 		int lo = 0;
 		int hi = cells.size() - 1;

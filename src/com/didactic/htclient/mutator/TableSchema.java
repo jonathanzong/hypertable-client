@@ -15,14 +15,27 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+/**
+ * Class representing a Schema that describes a table in Hypertable.
+ * Internally constructs the XML string that can be used to construct
+ * a table. Structure of the XML document matches that returned by the
+ * DESCRIBE TABLE 'table'; query in HQL.
+ *
+ */
 public class TableSchema {
 
 	private Document sch;
 	private Element rootElement;
 
+	/**
+	 * Constructs a TableSchema object and initializes the
+	 * XML schema document.
+	 * 
+	 * @throws TransformerException
+	 * @throws ParserConfigurationException
+	 */
 	public TableSchema() throws TransformerException, ParserConfigurationException{
 		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
@@ -32,6 +45,12 @@ public class TableSchema {
 		sch.appendChild(rootElement);
 	}
 
+	/**
+	 * Adds an access group to the schema.
+	 * 
+	 * @param name
+	 * @return
+	 */
 	public TableSchema addAccessGroup(String name){
 		Element ag = sch.createElement("AccessGroup");
 		rootElement.appendChild(ag);
@@ -40,14 +59,34 @@ public class TableSchema {
 		return this;
 	}
 
+	/**
+	 * Adds a column family to the schema.
+	 * 
+	 * @param name
+	 * @return
+	 */
 	public TableSchema addColumnFamily(String name){
 		return addColumnFamily(name, false, null);
 	}
 	
+	/**
+	 * Adds an atomic counter column family to the schema.
+	 * 
+	 * @param name
+	 * @return
+	 */
 	public TableSchema addColumnFamilyAtomic(String name){
 		return addColumnFamily(name, true, null);
 	}
 
+	/**
+	 * Adds a column family with specified atomicity and access group.
+	 * 
+	 * @param name
+	 * @param counter
+	 * @param accessGroup
+	 * @return
+	 */
 	public TableSchema addColumnFamily(String name, Boolean counter, String accessGroup){
 		Element colfam = sch.createElement("ColumnFamily");
 		NodeList accessgroups = rootElement.getElementsByTagName("AccessGroup");
@@ -80,6 +119,10 @@ public class TableSchema {
 		return this;
 	}
 
+	/**
+	 * Returns the XML representation of the schema.
+	 * 
+	 */
 	@Override
 	public String toString(){
 		try {
