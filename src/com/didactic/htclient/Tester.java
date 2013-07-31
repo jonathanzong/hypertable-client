@@ -6,12 +6,18 @@ import com.didactic.htclient.accessor.Result;
 import com.didactic.htclient.accessor.Scan;
 import com.didactic.htclient.mutator.Delete;
 import com.didactic.htclient.mutator.Put;
+import com.didactic.htclient.mutator.TableSchema;
 
 public class Tester {
 
 	public static void main(String[] args) throws Exception{
 		HypertableClient htc = new HypertableClient();
-
+		
+		TableSchema table = new TableSchema();
+		table.addColumnFamily("val");
+		
+		htc.createTable("test", table);
+		
 		Put put = new Put("4128");
 		for(int i=0;i<10;i++)
 			put.add("val", "lol", ""+i);

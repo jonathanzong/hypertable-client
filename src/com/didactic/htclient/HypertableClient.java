@@ -14,6 +14,7 @@ import com.didactic.htclient.accessor.Result;
 import com.didactic.htclient.accessor.Scan;
 import com.didactic.htclient.mutator.Delete;
 import com.didactic.htclient.mutator.Put;
+import com.didactic.htclient.mutator.TableSchema;
 
 public class HypertableClient {
 
@@ -152,5 +153,9 @@ public class HypertableClient {
 			reslist.add(new Result(row, buckets.get(row)));
 		}
 		return reslist;
+	}
+	
+	public void createTable(String tableName, TableSchema tableschema) throws ClientException, TException{
+		client.create_table(ns, tableName, tableschema.toString());
 	}
 }
