@@ -51,7 +51,7 @@ public class Scan {
 	}
 	
 	public Scan setRevisions(Integer revisions){
-		scanSpec.setVersions(revisions);
+		scanSpec.setVersions(revisions+1);
 		return this;
 	}
 	
