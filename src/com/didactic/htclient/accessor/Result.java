@@ -187,19 +187,7 @@ public class Result {
 
 	@Override
 	public String toString(){
-		StringBuilder sb = new StringBuilder(rowkey+" : [");
-		for(Cell c:cells){
-			sb.append('{');
-			sb.append(c.getKey().getColumn_family());
-			sb.append(':');
-			sb.append(c.getKey().getColumn_qualifier());
-			sb.append(" = ");
-			sb.append(new String(c.getValue()));
-			sb.append(" R");
-			sb.append(c.getKey().getRevision());
-			sb.append("}, ");
-		}
-		return sb.toString().substring(0,sb.length()-2)+"]";
+		return ("Result for row {"+rowkey+"}");
 	}
 
 }

@@ -253,4 +253,25 @@ public class HypertableClient {
 	public void createTable(String tableName, TableSchema tableschema) throws ClientException, TException{
 		client.create_table(ns, tableName, tableschema.toString());
 	}
+	
+	/**
+	 * Method to execute an operation
+	 * to create a table based on a 
+	 * schema object only if a table
+	 * with that name does not already
+	 * exist. Returns true if a table
+	 * was created.
+	 * 
+	 * @param tableName
+	 * @param tableschema
+	 * @throws ClientException
+	 * @throws TException
+	 */
+	public boolean createTableIfNotExists(String tableName, TableSchema tableschema) throws ClientException, TException{
+		if(!client.table_exists(ns, tableName)){
+			createTable(tableName, tableschema);
+			return true;
+		}
+		return false;
+	}
 }

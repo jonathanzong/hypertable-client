@@ -34,6 +34,10 @@ public class Delete{
 	 * For example, passing 3 as the Integer parameter will
 	 * delete the 3 most recent updates to the column.
 	 * 
+	 * N is held in the revisions field of the Key
+	 * (which actually means something else) and retrieved
+	 * by the client object calling method.
+	 * 
 	 * @param cfam
 	 * @param cqual
 	 * @param revisions
