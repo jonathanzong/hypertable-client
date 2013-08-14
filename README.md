@@ -11,20 +11,25 @@ client.table_exists(ns, name);
 client.exists_table(ns, name);
 ```
 
-Among other reasons.
+Among other things, the Thrift API isn't stylistically consistent with Java conventions (camel case instead of underscores, etc.) and in some cases needlessly verbose.
+
+Performing operations from a row-oriented perspective makes certain tasks conceptually easier. The wrapper API also provides operations that are either unavailable or annoying in the Thrift API.
 
 Code Example
 ------------
 
 ```
 HypertableClient htc = new HypertableClient("localhost", 38080);
+```
 
-// Create a table
+### Create a table
+```
 TableSchema table = new TableSchema().addColumnFamily("cfam");
-
 htc.createTable("htc_test", table);
+```
 
-// Put some values
+### Put some values
+```
 Put put = new Put("42")
 .add("cfam", "cqual1", "val1")
 .add("cfam", "cqual2", "val2");
@@ -32,10 +37,23 @@ Put put = new Put("42")
 htc.put("htc_test", put);
 ```
 
+### Scan the table
+```
+List<Result> res = htc.scan("htc_test", new Scan("42"));
+```
 
-Features not Present in Thrift API
+### Access some data
+```
+for(Result r: res){
+	sopl(r.getFamily("cfam"));
+	sopl(r.getValue("cfam", "cqual1"));
+}
+```
+
+Highlighted Features
 ----------------------------------
 
-- Delete n most recent revisions of cell
 - Create table using a Schema string in XML without HQL (thrift does not expose the function: https://groups.google.com/forum/#!msg/hypertable-user/QnMGE1LgpAI/JMWDCUWe8wUJ)
-
+- Delete n most recent revisions of cell
+- Access data as Result objects encapsulating all columns associated with a single rowkey
+- Access column families as qualifier-value maps

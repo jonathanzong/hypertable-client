@@ -1,8 +1,9 @@
 package com.didactic.htclient.accessor;
 
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.hypertable.thriftgen.Cell;
 
@@ -47,7 +48,7 @@ public class Result {
 	public boolean containsColumn(String cfam, String cqual){
 		return getValue(cfam, cqual) != null;
 	}
-	
+
 	/**
 	 * Returns the most recent value for the specified column
 	 * or null if it is not found.
@@ -60,7 +61,7 @@ public class Result {
 		Cell c = getCell(cfam, cqual);
 		return c == null ? null : new String(c.getValue());
 	}
-	
+
 	/**
 	 * Returns all revisions of a value for the specified column
 	 * or null if it is not found.
@@ -77,7 +78,7 @@ public class Result {
 			list.add(new String(c.getValue()));
 		return list;
 	}
-	
+
 	/**
 	 * Returns the most recent timestamp for the
 	 * specified column, or null if it is not found
@@ -90,7 +91,7 @@ public class Result {
 		Cell c = getCell(cfam, cqual);
 		return c == null ? null : c.getKey().getTimestamp();
 	}
-	
+
 	/**
 	 * Returns timestamps for all revisions of the specified
 	 * column, or null if it is not found.
@@ -180,6 +181,52 @@ public class Result {
 					}
 					return vals;
 				}
+			}            
+		}
+		return null;
+	}
+	
+	public Map<String,String> getFamily(String cfam){
+		List<Cell> cf = getCellFamily(cfam);
+		if(cf == null) return null;
+		Map<String,String> map = new HashMap<String,String>();
+		for(Cell c:cf){
+			map.put(c.getKey().getColumn_qualifier(), new String(c.getValue()));
+		}
+		return map;
+	}
+	
+	private List<Cell> getCellFamily(String cfam){
+		List<Cell> revs = getCellFamilyRevisions(cfam);
+		if(revs == null) return null;
+		List<Cell> list = new LinkedList<Cell>();
+		list.add(revs.get(0));
+		for(int idx=1;idx<revs.size();idx++){
+			if(!revs.get(idx).getKey().getColumn_qualifier()
+					.equals(revs.get(idx-1).getKey().getColumn_qualifier()))
+				list.add(revs.get(idx));
+		}
+		return list;		
+	}
+
+	private List<Cell> getCellFamilyRevisions(String cfam){
+		int lo = 0;
+		int hi = cells.size() - 1;
+		while(lo <= hi){
+			int mid = lo + (hi - lo) / 2;
+			if(cfam.compareTo(cells.get(mid).getKey().getColumn_family()) < 0)
+				hi = mid - 1;
+			else if(cfam.compareTo(cells.get(mid).getKey().getColumn_family()) > 0)
+				lo = mid + 1;
+			else if(cfam.compareTo(cells.get(mid).getKey().getColumn_family()) == 0){
+				while(mid>-1 && cells.get(mid).getKey().getColumn_family().equals(cfam)){
+					mid--;
+				}
+				List<Cell> list = new LinkedList<Cell>();
+				while((++mid)<cells.size() && cells.get(mid).getKey().getColumn_family().equals(cfam)){
+					list.add(cells.get(mid));
+				}
+				return list;
 			}            
 		}
 		return null;

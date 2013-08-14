@@ -17,7 +17,7 @@ public class Example {
 		TableSchema table = new TableSchema()
 		.addColumnFamily("cfam");
 
-		htc.createTable("htc_test", table);
+		htc.createTableIfNotExists("htc_test", table);
 
 		// Put some values
 		Put put = new Put("42")
@@ -26,7 +26,8 @@ public class Example {
 		.add("cfam", "cqual", "3")
 		.add("cfam", "cqual", "4")
 		.add("cfam", "cqual", "5")
-		.add("cfam", "cqual2", "differentQualifier");
+		.add("cfam", "cqual2", "differentQualifier")
+		.add("cfam", "cqual2", "differentQualifierRev2");
 
 		htc.put("htc_test", put);
 
@@ -39,6 +40,8 @@ public class Example {
 			sopl(r.getValue("cfam", "cqual"));
 			// print all revisions of the column
 			sopl(r.getValueRevisions("cfam", "cqual"));
+			// print the latest revision of every column in a family
+			sopl(r.getFamily("cfam"));
 		}
 		
 		// get the most recent timestamp
