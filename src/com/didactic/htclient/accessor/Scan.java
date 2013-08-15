@@ -48,6 +48,15 @@ public class Scan {
 		addRowInterval(startRow,endRow);
 	}
 	
+	public Scan addRow(String rowkey){
+		RowInterval ri = new RowInterval();
+		ri.setStart_row(rowkey);
+		ri.setEnd_row(rowkey);
+		intervals.add(ri);
+		scanSpec.setRow_intervals(intervals);
+		return this;
+	}
+	
 	/**
 	 * Adds a row interval to the scan specification.
 	 * 

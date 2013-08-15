@@ -54,6 +54,21 @@ public class Put {
 
 		return this;		
 	}
+	
+	public Put addAtomicIncrement(String cfam, String cqual, int increment){
+		add(cfam,cqual,"+"+increment);
+		return this;		
+	}
+	
+	public Put addAtomicDecrement(String cfam, String cqual, int decrement){
+		add(cfam,cqual,"-"+decrement);
+		return this;		
+	}
+	
+	public Put addAtomicReset(String cfam, String cqual, int valueToSet){
+		add(cfam,cqual,"="+valueToSet);
+		return this;		
+	}
 
 	public String getRow() {
 		return rowkey;
