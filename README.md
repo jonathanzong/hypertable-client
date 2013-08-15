@@ -11,9 +11,9 @@ client.table_exists(ns, name);
 client.exists_table(ns, name);
 ```
 
-Among other things, the Thrift API isn't stylistically consistent with Java conventions (camel case instead of underscores, etc.) and in some cases needlessly verbose.
+Among other things, the Thrift API isn't stylistically consistent with Java conventions (camel case instead of underscores, etc.) and in some cases is needlessly verbose.
 
-Performing operations from a row-oriented perspective makes certain tasks conceptually easier. The Java client wrapper also provides operations that are either unavailable or annoying in the Thrift API.
+Performing operations from a row-oriented perspective makes tasks conceptually easier. The Java client wrapper also provides operations that are either unavailable or annoying in the Thrift API.
 
 Code Example
 ------------
@@ -62,6 +62,6 @@ Contribute
 --------------------------------
 
 - Fork the project
-- Increase awesomeness of project
+- Increase awesomeness of the project
 - Test new awesomeness
 - Commit and send a pull request
