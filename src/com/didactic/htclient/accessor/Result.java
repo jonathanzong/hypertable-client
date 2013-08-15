@@ -114,9 +114,10 @@ public class Result {
 	}
 
 	/**
-	 * Performs a binary search to find the most recent
+	 * Performs a linear search to find the most recent
 	 * cell for a specified column. Returns null if it is
-	 * not found.
+	 * not found. Operates on the contract that cells are returned
+	 * sorted by most recent first.
 	 * 
 	 * @param cfam
 	 * @param cqual
@@ -130,7 +131,7 @@ public class Result {
 	}
 
 	/**
-	 * Performs a binary search to return all revisions
+	 * Performs a linear search to return all revisions
 	 * of a specified column, or null if it is not found.
 	 * 
 	 * @param cfam
@@ -169,31 +170,19 @@ public class Result {
 	}
 
 	private List<Cell> getCellFamilyRevisions(String cfam){
-		int lo = 0;
-		int hi = cells.size() - 1;
-		while(lo <= hi){
-			int mid = lo + (hi - lo) / 2;
-			if(cfam.compareTo(cells.get(mid).getKey().getColumn_family()) < 0)
-				hi = mid - 1;
-			else if(cfam.compareTo(cells.get(mid).getKey().getColumn_family()) > 0)
-				lo = mid + 1;
-			else if(cfam.compareTo(cells.get(mid).getKey().getColumn_family()) == 0){
-				while(mid>-1 && cells.get(mid).getKey().getColumn_family().equals(cfam)){
-					mid--;
-				}
-				List<Cell> list = new LinkedList<Cell>();
-				while((++mid)<cells.size() && cells.get(mid).getKey().getColumn_family().equals(cfam)){
-					list.add(cells.get(mid));
-				}
-				return list;
-			}            
-		}
-		return null;
+		List<Cell> list = new LinkedList<Cell>();
+		for(Cell c:cells)
+			if(c.getKey().getColumn_family().equals(cfam))
+				list.add(c);
+		return list.isEmpty() ? null : list;
 	}
 
 	@Override
 	public String toString(){
-		return ("Result for row {"+rowkey+"}");
+		String s = rowkey+" : {";
+		for(Cell c:cells)
+			s+="'"+c.getKey().getColumn_family()+":"+c.getKey().getColumn_qualifier()+"' : '"+new String(c.getValue())+"', ";
+		return s.substring(0,s.length()-2) + "}";
 	}
 
 }
