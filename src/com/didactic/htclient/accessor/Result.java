@@ -49,6 +49,10 @@ public class Result {
 		return getValue(cfam, cqual) != null;
 	}
 
+	public boolean containsFamily(String cfam){
+		return getFamily(cfam) != null;
+	}
+
 	/**
 	 * Returns the most recent value for the specified column
 	 * or null if it is not found.
@@ -110,42 +114,24 @@ public class Result {
 	}
 
 	/**
-	 * Performs a binary search to find the most recent
+	 * Performs a linear search to find the most recent
 	 * cell for a specified column. Returns null if it is
-	 * not found.
+	 * not found. Operates on the contract that cells are returned
+	 * sorted by most recent first.
 	 * 
 	 * @param cfam
 	 * @param cqual
 	 * @return
 	 */
 	private Cell getCell(String cfam, String cqual){
-		int lo = 0;
-		int hi = cells.size() - 1;
-		while(lo <= hi){
-			int mid = lo + (hi - lo) / 2;
-			if(cfam.compareTo(cells.get(mid).getKey().getColumn_family()) < 0)
-				hi = mid - 1;
-			else if(cfam.compareTo(cells.get(mid).getKey().getColumn_family()) > 0)
-				lo = mid + 1;
-			else if(cfam.compareTo(cells.get(mid).getKey().getColumn_family()) == 0){
-				if(cqual.compareTo(cells.get(mid).getKey().getColumn_qualifier()) < 0)
-					hi = mid - 1;
-				else if(cqual.compareTo(cells.get(mid).getKey().getColumn_qualifier()) > 0)
-					lo = mid + 1;
-				else if(cells.get(mid).getKey().getColumn_qualifier().equals(cqual)){
-					while(mid>-1 && cells.get(mid).getKey().getColumn_family().equals(cfam) &&
-							cells.get(mid).getKey().getColumn_qualifier().equals(cqual)){
-						mid--;
-					}
-					return cells.get(mid+1);
-				}
-			}            
-		}
+		for(Cell c:cells)
+			if(c.getKey().getColumn_family().equals(cfam) && c.getKey().getColumn_qualifier().equals(cqual))
+				return c;
 		return null;
 	}
 
 	/**
-	 * Performs a binary search to return all revisions
+	 * Performs a linear search to return all revisions
 	 * of a specified column, or null if it is not found.
 	 * 
 	 * @param cfam
@@ -153,37 +139,11 @@ public class Result {
 	 * @return
 	 */
 	private List<Cell> getCellRevisions(String cfam, String cqual){
-		int lo = 0;
-		int hi = cells.size() - 1;
-		while(lo <= hi){
-			int mid = lo + (hi - lo) / 2;
-			if(cfam.compareTo(cells.get(mid).getKey().getColumn_family()) < 0)
-				hi = mid - 1;
-			else if(cfam.compareTo(cells.get(mid).getKey().getColumn_family()) > 0)
-				lo = mid + 1;
-			else if(cfam.compareTo(cells.get(mid).getKey().getColumn_family()) == 0){
-				if(cqual.compareTo(cells.get(mid).getKey().getColumn_qualifier()) < 0)
-					hi = mid - 1;
-				else if(cqual.compareTo(cells.get(mid).getKey().getColumn_qualifier()) > 0)
-					lo = mid + 1;
-				else if(cells.get(mid).getKey().getColumn_qualifier().equals(cqual)){
-					while(mid>-1 && cells.get(mid).getKey().getColumn_family().equals(cfam) &&
-							cells.get(mid).getKey().getColumn_qualifier().equals(cqual)){
-						mid--;
-					}
-					List<Cell> vals = new LinkedList<Cell>();
-					for(int idx=mid+1;idx<cells.size()-1;idx++){
-						if(!(cells.get(idx).getKey().getColumn_family().equals(cfam) &&
-								cells.get(idx).getKey().getColumn_qualifier().equals(cqual))){
-							break;
-						}
-						vals.add(cells.get(idx));
-					}
-					return vals;
-				}
-			}            
-		}
-		return null;
+		List<Cell> list = new LinkedList<Cell>();
+		for(Cell c:cells)
+			if(c.getKey().getColumn_family().equals(cfam) && c.getKey().getColumn_qualifier().equals(cqual))
+				list.add(c);
+		return list.isEmpty() ? null : list;
 	}
 	
 	public Map<String,String> getFamily(String cfam){
@@ -210,31 +170,19 @@ public class Result {
 	}
 
 	private List<Cell> getCellFamilyRevisions(String cfam){
-		int lo = 0;
-		int hi = cells.size() - 1;
-		while(lo <= hi){
-			int mid = lo + (hi - lo) / 2;
-			if(cfam.compareTo(cells.get(mid).getKey().getColumn_family()) < 0)
-				hi = mid - 1;
-			else if(cfam.compareTo(cells.get(mid).getKey().getColumn_family()) > 0)
-				lo = mid + 1;
-			else if(cfam.compareTo(cells.get(mid).getKey().getColumn_family()) == 0){
-				while(mid>-1 && cells.get(mid).getKey().getColumn_family().equals(cfam)){
-					mid--;
-				}
-				List<Cell> list = new LinkedList<Cell>();
-				while((++mid)<cells.size() && cells.get(mid).getKey().getColumn_family().equals(cfam)){
-					list.add(cells.get(mid));
-				}
-				return list;
-			}            
-		}
-		return null;
+		List<Cell> list = new LinkedList<Cell>();
+		for(Cell c:cells)
+			if(c.getKey().getColumn_family().equals(cfam))
+				list.add(c);
+		return list.isEmpty() ? null : list;
 	}
 
 	@Override
 	public String toString(){
-		return ("Result for row {"+rowkey+"}");
+		String s = rowkey+" : {";
+		for(Cell c:cells)
+			s+="'"+c.getKey().getColumn_family()+":"+c.getKey().getColumn_qualifier()+"' : '"+new String(c.getValue())+"', ";
+		return s.substring(0,s.length()-2) + "}";
 	}
 
 }
